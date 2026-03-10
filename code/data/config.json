@@ -1,0 +1,19 @@
+{
+    "ofdm": {
+        "fft_size": 64,
+        "cp_length": 16,
+        "num_symbols": 16,
+        "modulation": "QPSK"
+    },
+    "detector": {
+        "cyclic_frequencies": [-2, -1, 0, 1, 2],
+        "beta": 0.3,
+        "target_pfa": 0.1
+    },
+    "simulation": {
+        "N": 1024,
+        "snr_range_db": [-20, -18, -16, -14, -12, -10, -8, -6, -4, -2, 0],
+        "num_trials": 1000,
+        "noise_uncertainty_db": 1.0
+    }
+}
