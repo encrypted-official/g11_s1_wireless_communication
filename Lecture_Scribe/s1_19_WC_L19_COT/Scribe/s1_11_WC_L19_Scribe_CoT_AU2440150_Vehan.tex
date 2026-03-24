@@ -1,0 +1,272 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{geometry}
+\usepackage{setspace}
+\usepackage{enumitem}
+\geometry{margin=1in}
+\setstretch{1.15}
+
+\begin{document}
+
+\begin{center}
+{\Large \textbf{CSE 400 — Lecture 19 Scribe}}\\
+\vspace{0.2em}
+N-Variate Joint PDF / PMF / CDF
+\end{center}
+
+\section{Joint Distribution of N Random Variables}
+
+\subsection{Definition (Vector Representation)}
+
+Let $X_1, X_2, \ldots, X_N$ be random variables.
+
+Define the random vector:
+\[
+X =
+\begin{bmatrix}
+X_1 \\
+X_2 \\
+\vdots \\
+X_N
+\end{bmatrix}
+\]
+
+The joint distribution describes the probability behavior of all variables together.
+
+It can be represented using:
+\begin{itemize}[noitemsep]
+\item Joint PMF (discrete case)
+\item Joint PDF (continuous case)
+\item Joint CDF
+\end{itemize}
+
+\section{Joint Gaussian Random Variables}
+
+\subsection{Joint Gaussian PDF (Two Variables)}
+
+For two random variables $X$ and $Y$, the joint PDF is:
+
+\[
+f_{XY}(x,y) =
+\frac{1}{2\pi \sigma_X \sigma_Y \sqrt{1-\rho^2}}
+\exp\left(
+-\frac{1}{2(1-\rho^2)}
+\left[
+\left(\frac{x-\mu_X}{\sigma_X}\right)^2
++
+\left(\frac{y-\mu_Y}{\sigma_Y}\right)^2
+-
+2\rho \left(\frac{x-\mu_X}{\sigma_X}\right)\left(\frac{y-\mu_Y}{\sigma_Y}\right)
+\right]
+\right)
+\]
+
+\subsection{Parameters}
+
+\begin{itemize}[noitemsep]
+\item $\mu_X, \mu_Y$ : means
+\item $\sigma_X, \sigma_Y$ : standard deviations
+\item $\rho$ : Pearson correlation coefficient
+\end{itemize}
+
+\section{Example: Joint Gaussian Variables}
+
+\subsection*{Given}
+
+\[
+\mu_X = 2, \quad \sigma_X = 1
+\]
+\[
+\mu_Y = -3, \quad \sigma_Y = 2
+\]
+\[
+\text{cov}(X,Y) = -1
+\]
+
+\subsection*{Required}
+
+\begin{enumerate}[label=\alph*.]
+\item Joint PDF
+\item Marginal PDFs
+\item $P(X < 0)$ in terms of Q-function
+\end{enumerate}
+
+\section{Solution (a): Joint PDF Construction}
+
+\subsection*{Step 1: Correlation Coefficient}
+
+\[
+\rho_{XY} = \frac{\text{cov}(X,Y)}{\sigma_X \sigma_Y}
+\]
+
+Substitute:
+
+\[
+\rho_{XY} = \frac{-1}{(1)(2)} = -\frac{1}{2}
+\]
+
+\subsection*{Step 2: Substitute into General Formula}
+
+Using:
+
+\[
+\mu_X = 2,\quad \sigma_X = 1,\quad
+\mu_Y = -3,\quad \sigma_Y = 2,\quad
+\rho = -0.5
+\]
+
+Final joint PDF:
+
+\[
+f_{XY}(x,y) =
+\frac{1}{2\pi \cdot 2 \cdot \sqrt{1-0.25}}
+\exp\left(
+-\frac{1}{2(1-0.25)}
+\left[
+(x-2)^2
++
+\frac{(y+3)^2}{4}
++
+(x-2)(y+3)
+\right]
+\right)
+\]
+
+\section{Solution (b): Marginal PDFs}
+
+\subsection*{Definition}
+
+\[
+f_X(x) = \int_{-\infty}^{\infty} f_{XY}(x,y)\,dy
+\]
+\[
+f_Y(y) = \int_{-\infty}^{\infty} f_{XY}(x,y)\,dx
+\]
+
+\subsection*{Key Property}
+
+If $X$ and $Y$ are jointly Gaussian:
+
+\[
+X \sim \mathcal{N}(\mu_X, \sigma_X^2), \quad
+Y \sim \mathcal{N}(\mu_Y, \sigma_Y^2)
+\]
+
+\subsection*{Final Marginals}
+
+\[
+f_X(x) =
+\frac{1}{\sqrt{2\pi}}
+\exp\left(-\frac{(x-2)^2}{2}\right)
+\]
+
+\[
+f_Y(y) =
+\frac{1}{2\sqrt{2\pi}}
+\exp\left(-\frac{(y+3)^2}{8}\right)
+\]
+
+\section{Solution (c): $P(X < 0)$}
+
+\subsection*{Step 1: Identify Distribution}
+
+\[
+X \sim \mathcal{N}(2,1)
+\]
+
+\subsection*{Step 2: Express as CDF}
+
+\[
+P(X < 0) = F_X(0)
+\]
+
+\subsection*{Step 3: Standardization}
+
+\[
+Z = \frac{X - \mu_X}{\sigma_X}
+\]
+
+\[
+P(X < 0) = P\left(Z < \frac{0 - 2}{1}\right) = P(Z < -2)
+\]
+
+\subsection*{Step 4: Symmetry Property}
+
+\[
+\Phi(-x) = 1 - \Phi(x) = P(Z > x)
+\]
+
+\[
+P(Z < -2) = P(Z > 2)
+\]
+
+\subsection*{Step 5: Q-function Relation}
+
+\[
+Q(x) = P(Z > x)
+\]
+
+\[
+P(X < 0) = Q(2)
+\]
+
+\section{Application: Large MIMO System}
+
+\subsection{System Setup}
+
+\begin{itemize}[noitemsep]
+\item $M$ : transmit antennas
+\item $N$ : receive antennas
+\end{itemize}
+
+\subsection{Channel Coefficients}
+
+Each path between transmit antenna $j$ and receive antenna $i$:
+
+\[
+h_{ij} \text{ is a random variable}
+\]
+
+\subsection{Channel Matrix}
+
+\[
+H =
+\begin{bmatrix}
+h_{11} & h_{12} & \cdots & h_{1N} \\
+h_{21} & h_{22} & \cdots & h_{2N} \\
+\vdots & \vdots & \ddots & \vdots \\
+h_{M1} & h_{M2} & \cdots & h_{MN}
+\end{bmatrix}
+\]
+
+Dimension:
+
+\[
+M \times N
+\]
+
+\section{Joint PMF (Discrete Case)}
+
+\subsection{Definition}
+
+For discrete random variables $X_1, X_2, \ldots, X_N$:
+
+\[
+P_{X_1,X_2,\ldots,X_N}(x_1,x_2,\ldots,x_N)
+=
+P(X_1=x_1, X_2=x_2, \ldots, X_N=x_N)
+\]
+
+\section{Summary of Dependencies}
+
+\begin{itemize}[noitemsep]
+\item Joint distribution $\rightarrow$ defines full multivariate behavior
+\item Covariance $\rightarrow$ used to compute correlation
+\item Correlation $\rightarrow$ required in joint Gaussian PDF
+\item Joint PDF $\rightarrow$ integrated to obtain marginals
+\item Marginals $\rightarrow$ used for probability computations
+\item Standardization $\rightarrow$ converts to standard normal
+\item Symmetry $\rightarrow$ enables Q-function representation
+\end{itemize}
+
+\end{document}
