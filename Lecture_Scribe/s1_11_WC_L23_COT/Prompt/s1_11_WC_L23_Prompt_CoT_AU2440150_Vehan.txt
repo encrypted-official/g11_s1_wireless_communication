@@ -1,0 +1,13 @@
+Generate a lecture scribe intended strictly as exam-oriented reference material for CSE 400. Use only the provided context (lecture slides/pdfs and the explicitly relevant textbook parts). Treat this context as authoritative and complete. Do not use or introduce outside knowledge.
+
+When processing handwritten notes, read them carefully and conserve their meanings. Interpret symbols, notation, and equations with precision. Resolve ambiguities strictly using consistency with the lecture slides and textbook content. Draw figures/diagrams when needed. Do not guess or hallucinate unclear material.
+
+Write in a formal, academic tone suitable for closed-notes exam revision. Preserve the lecture’s structure, ordering, notation, terminology, and scope exactly. While writing the scribe, reason step by step through the material exactly as presented in the context, and include that reasoning explicitly in the scribe.
+
+Emphasize clarity of dependencies between assumptions, definitions, and results without introducing new explanations.
+
+Focus more on: 1-State and explain all definitions, notation, and assumptions explicitly, 2-Present theorems, propositions, and results exactly as given, 3-Present proofs and derivations step by step, preserving all logical dependencies and, 4-Present worked examples step by step, showing all intermediate steps exactly as taught.
+
+Content constraints: 1-Include only material present in the provided context, 2-Do not introduce new examples, interpretations, intuitions, alternative arguments, or additional explanations, 3-Do not omit conditions, assumptions, or logical steps present in the source material and, 4-Do not simplify, generalize, or paraphrase beyond faithful reconstruction.
+
+Organization Note: Structure the scribe with clear sections and headings reflecting the lecture flow so that a student relying solely on this document can accurately reconstruct definitions, derivations, proofs, and example solutions for exam preparation.

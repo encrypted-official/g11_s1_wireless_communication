@@ -1,0 +1,361 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{geometry}
+\usepackage{setspace}
+\usepackage{enumitem}
+\geometry{margin=1in}
+\setstretch{1.15}
+
+\begin{document}
+
+\begin{center}
+{\Large \textbf{CSE 400 — Lecture 23 Scribe}}\\
+\vspace{0.2em}
+Predicting the Impossible — Tail Bounds and System Reliability
+\end{center}
+
+\section{Problem Context: System Reliability Under Uncertainty}
+
+\subsection{Scenario Definition}
+
+The system models Amazon Black Friday Sale 2026 traffic.
+
+High-volume distributed systems must handle random request arrivals.
+
+Requests arrive at servers as random processes.
+
+Modeled using Poisson arrivals:
+\[
+X \sim \text{Poisson}(\lambda)
+\]
+
+Critical system event:
+
+\[
+\text{Server overload occurs if } X \ge k
+\]
+
+where:
+\begin{itemize}[noitemsep]
+\item $X$ : number of requests in a time window
+\item $k$ : system crash threshold
+\end{itemize}
+
+\section{Tail Probability as Failure Metric}
+
+\subsection{Definition}
+
+\[
+P(X \ge k)
+\]
+
+The system reliability question reduces to computing this probability.
+
+Key statement:
+
+\[
+\text{“The mean is safe. The tail is catastrophic.”}
+\]
+
+\subsection{Example from Simulation}
+
+\[
+\lambda = 50,\quad k = 60
+\]
+
+Empirical crash rate:
+\[
+8.7\% \quad (\text{87 crashes in 1000 minutes})
+\]
+
+Thus:
+\[
+\text{Goal: Estimate } P(X \ge 60)
+\]
+
+\section{Necessity of Probability Bounds}
+
+Exact computation of $P(X \ge k)$ may not always be feasible.
+
+Thus, upper bounds are used.
+
+\subsection*{Hierarchy of Bounds}
+
+\begin{center}
+\begin{tabular}{c|c|c}
+Level & Method & Required Information \\ \hline
+1 & Markov & Mean \\
+2 & Chebyshev & Mean, Variance \\
+3 & Chernoff & Full distribution (MGF)
+\end{tabular}
+\end{center}
+
+Observation:
+\[
+\text{More information} \Rightarrow \text{tighter bounds}
+\]
+
+\section{Markov’s Inequality}
+
+\subsection{Statement}
+
+For non-negative random variable $X$:
+
+\[
+P(X \ge a) \le \frac{E[X]}{a}
+\]
+
+\subsection{Inputs}
+
+\[
+\mu = E[X]
+\]
+
+\subsection{Behavior}
+
+Decay: linear in $1/a$
+
+Example:
+\[
+\text{Exact} = 0.004,\quad \text{Markov} = 0.714
+\]
+
+\subsection{Interpretation}
+
+\begin{itemize}[noitemsep]
+\item Bound is loose
+\item Strong overestimation
+\item Leads to pessimistic system design
+\end{itemize}
+
+\section{Chebyshev’s Inequality}
+
+\subsection{Statement}
+
+\[
+P(|X - \mu| \ge a) \le \frac{\sigma^2}{a^2}
+\]
+
+Equivalent tail form:
+
+\[
+P(X \ge a) \le \frac{\sigma^2}{(a - \mu)^2}
+\]
+
+\subsection{Inputs}
+
+\[
+\mu = E[X], \quad \sigma^2 = \text{Var}(X)
+\]
+
+\subsection{Behavior}
+
+Decay: polynomial in $1/a^2$
+
+Example:
+\[
+\text{Exact} = 0.004,\quad \text{Chebyshev} = 0.125
+\]
+
+\subsection{Interpretation}
+
+\begin{itemize}[noitemsep]
+\item Tighter than Markov
+\item Still significantly overestimates
+\end{itemize}
+
+\section{Chernoff Bound}
+
+\subsection{Statement (General Form)}
+
+\[
+P(X \ge a) \le \min_{t>0} e^{-ta} M_X(t)
+\]
+
+where:
+\[
+M_X(t) = E[e^{tX}]
+\]
+
+\subsection{Inputs}
+
+Full distribution via moment generating function.
+
+\subsection{Behavior}
+
+Decay: exponential
+
+Example:
+\[
+\text{Exact} = 0.004,\quad \text{Chernoff} = 0.092
+\]
+
+\subsection{Interpretation}
+
+\begin{itemize}[noitemsep]
+\item Tightest bound among the three
+\item Closely follows actual tail probability
+\end{itemize}
+
+\section{Comparative Decay Rates}
+
+\begin{center}
+\begin{tabular}{c|c|c}
+Method & Decay Type & Expression \\ \hline
+Markov & Linear & $1/k$ \\
+Chebyshev & Polynomial & $1/k^2$ \\
+Chernoff & Exponential & $e^{-k}$
+\end{tabular}
+\end{center}
+
+\[
+\text{Chernoff} \ll \text{Chebyshev} \ll \text{Markov}
+\]
+
+\section{Case Study: SLA Breach}
+
+\subsection{Parameters}
+
+\[
+\lambda = 500,\quad k = 600
+\]
+
+\subsection{Objective}
+
+\[
+\text{Estimate } P(X \ge 600)
+\]
+
+Exact:
+\[
+1.4\%
+\]
+
+\section{Cost of Loose Bounds}
+
+\begin{center}
+\begin{tabular}{c|c}
+Method & Estimated Failure Probability \\ \hline
+Chernoff & 8.8\% \\
+Chebyshev & 20\% \\
+Markov & 90.9\%
+\end{tabular}
+\end{center}
+
+Observation:
+
+Markov exaggerates risk drastically.
+
+\section{Financial Interpretation}
+
+\subsection{Waste Multiplier}
+
+\[
+\text{Waste Multiplier} =
+\frac{\text{Bound Estimate}}{\text{Exact Probability}}
+\]
+
+\subsection{Example at $\lambda = 500$}
+
+\begin{itemize}[noitemsep]
+\item Chernoff: $\approx 10.7\times$
+\item Chebyshev: $\approx 6422\times$
+\item Markov: $\approx 107039\times$
+\end{itemize}
+
+Conclusion:
+
+\[
+\text{Loose bound} \Rightarrow \text{Over-provisioning} \Rightarrow \text{Financial loss}
+\]
+
+\section{Distribution Sensitivity}
+
+Observation:
+
+Chernoff performs well for:
+\begin{itemize}[noitemsep]
+\item Poisson
+\item Binomial
+\end{itemize}
+
+For heavy-tailed distributions (e.g., Gamma):
+
+Chernoff may overestimate.
+
+\section{Engineer’s Decision Matrix}
+
+\begin{center}
+\begin{tabular}{c|c|c|c}
+Method & Requires & Decay & Use Case \\ \hline
+Markov & Mean & Linear & Only mean known \\
+Chebyshev & Mean, Variance & Polynomial & Variance known \\
+Chernoff & Full MGF & Exponential & Precise SLA sizing
+\end{tabular}
+\end{center}
+
+\section{Class Exercise: Laplace Distribution}
+
+\subsection{Given}
+
+\[
+X \sim \text{Laplace}(\mu, b), \quad \sigma = b\sqrt{2}
+\]
+
+\subsection{Objective}
+
+\[
+a = \mu + 3\sigma
+\]
+
+Compute Chernoff bound for:
+\[
+P(X \ge a)
+\]
+
+\subsection{Derivation Blueprint}
+
+\begin{enumerate}[noitemsep]
+\item Compute MGF:
+\[
+M_X(t) = E[e^{tX}]
+\]
+\item Apply Chernoff:
+\[
+P(X \ge a) \le e^{-ta} M_X(t)
+\]
+\item Optimize:
+\begin{itemize}[noitemsep]
+\item Differentiate w.r.t $t$
+\item Set derivative to $0$
+\item Solve for $t^*$
+\end{itemize}
+\item Substitute optimal $t^*$
+\end{enumerate}
+
+\section{Final Synthesis}
+
+\begin{enumerate}[noitemsep]
+\item System failures are governed by tail probabilities:
+\[
+P(X \ge k)
+\]
+\item Exact computation often infeasible $\Rightarrow$ bounds required.
+\item Trade-off:
+\[
+\text{Less information} \Rightarrow \text{weaker bound} \Rightarrow \text{higher cost}
+\]
+\[
+\text{More information} \Rightarrow \text{tighter bound} \Rightarrow \text{efficient design}
+\]
+\item Mathematical decay governs engineering decisions:
+\[
+\text{Linear} \rightarrow \text{Polynomial} \rightarrow \text{Exponential}
+\]
+\item Core principle:
+\[
+P(X \ge a) \le e^{-t^* a} M_X(t^*)
+\]
+\end{enumerate}
+
+\end{document}
