@@ -1,0 +1,511 @@
+\documentclass[11pt]{article}
+
+% ===================== PACKAGES =====================
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{xcolor} 
+
+% ===================== HEADER & FOOTER =====================
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{CSE 400: Fundamentals of Probability in Computing}
+\rhead{Lecture 23 Scribe}
+\cfoot{\thepage}
+
+\title{\textbf{CSE400 -- Fundamentals of Probability in Computing}\\
+\large Lecture 23: Tail Bounds and System Reliability (Case Study: Amazon Black Friday Sale 2026)}
+\author{\textbf{Name:} Maitri Lad
+\textbf{Enrollnment no.:} AU2440146}
+\date{April 08, 2026}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction: System Reliability under Uncertainty}
+
+\subsection{Context: Amazon Black Friday Sale 2026}
+
+From the lecture (page 2):
+
+\begin{itemize}
+\item Expected sale timeline:
+\begin{itemize}
+\item Early deals: November 20--21, 2026
+\item Main sale: November 25--27, 2026
+\item Cyber Monday: November 30, 2026
+\end{itemize}
+
+\item System characteristics:
+\begin{itemize}
+\item High demand across categories (electronics, devices, apparel, home appliances)
+\item Additional load due to:
+\begin{itemize}
+\item Prime early access
+\item Bank discounts and cashback offers
+\end{itemize}
+\end{itemize}
+\end{itemize}
+
+\textbf{Logical implication:}
+
+The system must handle \textbf{extreme traffic spikes}, not just average load.
+
+\subsection{Connection to Computing and Uncertainty}
+
+From the diagram (page 3):
+
+\begin{itemize}
+\item Server system with multiple servers handling jobs.
+\item Highlighted condition:
+\begin{itemize}
+\item A server has \textbf{$\ge k$ jobs}
+\end{itemize}
+\item Arrival model:
+\begin{itemize}
+\item \textbf{Poisson arrivals (in datacenter)}
+\item Example:
+\begin{itemize}
+\item $\ge k$ arrivals within 1 hour
+\end{itemize}
+\end{itemize}
+\end{itemize}
+
+\textbf{Conclusion from lecture structure:}
+
+System load is modeled probabilistically, focusing on \textbf{rare high-load events}.
+
+\section{Problem Formulation: Tail Probability and Failure}
+
+From page 4:
+
+\begin{itemize}
+\item Key quantity:
+\[
+P(X \ge k)
+\]
+
+\item Interpretation:
+\begin{itemize}
+\item Probability that system load exceeds threshold $(k)$
+\item This corresponds to:
+\begin{itemize}
+\item \textbf{System failure event}
+\item \textbf{Overload threshold breach}
+\end{itemize}
+\end{itemize}
+\end{itemize}
+
+\subsection{Key Insight}
+
+From page 5:
+
+\begin{itemize}
+\item ``The mean is safe. The tail is catastrophic.''
+
+\item Simulation:
+\begin{itemize}
+\item Poisson traffic with parameter:
+\[
+\lambda = 50
+\]
+\item Crash threshold:
+\[
+k = 60
+\]
+\end{itemize}
+
+\item Observations:
+\begin{itemize}
+\item Even when mean $\approx 50$, spikes exceed 60
+\item Empirical crash rate: \textbf{8.7\% (87 crashes / 1000 minutes)}
+\end{itemize}
+\end{itemize}
+
+\textbf{Conclusion:}
+
+\begin{itemize}
+\item Mean behavior does not capture failure risk.
+\item Need to compute:
+\[
+P(X \ge 60)
+\]
+\end{itemize}
+
+\section{Motivation for Bounds}
+
+From page 6:
+
+\subsection{Core Insight}
+
+\begin{itemize}
+\item Exact probability may not always be computable.
+\item Use \textbf{upper bounds} instead.
+\end{itemize}
+
+\subsection{Hierarchy of Bounds}
+
+\begin{itemize}
+\item Level 1: Markov --- Mean $(\mu)$
+\item Level 2: Chebyshev --- Variance $(\sigma^2)$
+\item Level 3: Chernoff --- Full distribution (MGF)
+\end{itemize}
+
+\textbf{Conclusion:}
+
+\begin{itemize}
+\item More information $\Rightarrow$ tighter bounds.
+\end{itemize}
+
+\section{Markov's Inequality}
+
+\subsection{Statement (from page 7)}
+
+\[
+P(X \ge a) \le \frac{\mathbb{E}[X]}{a}
+\]
+
+\subsection{Requirements}
+
+\begin{itemize}
+\item Only requires:
+\[
+\mathbb{E}[X] = \mu
+\]
+\end{itemize}
+
+\subsection{Behavior}
+
+\begin{itemize}
+\item Decay:
+\[
+\propto \frac{1}{k}
+\]
+(Linear decay)
+\end{itemize}
+
+\subsection{Observation from Graph}
+
+\begin{itemize}
+\item Markov bound significantly overestimates:
+\begin{itemize}
+\item Example (page 7):
+\begin{itemize}
+\item Exact: 0.004
+\item Markov: 0.714
+\end{itemize}
+\end{itemize}
+\end{itemize}
+
+\textbf{Conclusion:}
+
+\begin{itemize}
+\item Very loose bound
+\item ``Wastes space'' due to overestimation
+\end{itemize}
+
+\section{Chebyshev's Inequality}
+
+\subsection{Statement (from page 8)}
+
+\[
+P(|X - \mu| \ge a) \le \frac{\sigma^2}{a^2}
+\]
+
+\subsection{Requirements}
+
+\begin{itemize}
+\item Mean $(\mu)$
+\item Variance $(\sigma^2)$
+\end{itemize}
+
+\subsection{Behavior}
+
+\begin{itemize}
+\item Decay:
+\[
+\propto \frac{1}{k^2}
+\]
+(Polynomial decay)
+\end{itemize}
+
+\subsection{Observation from Graph}
+
+\begin{itemize}
+\item Example (page 8):
+\begin{itemize}
+\item Exact: 0.004
+\item Chebyshev: 0.125
+\end{itemize}
+\end{itemize}
+
+\textbf{Conclusion:}
+
+\begin{itemize}
+\item Tighter than Markov
+\item Still overestimates
+\end{itemize}
+
+\section{Chernoff Bound}
+
+\subsection{Statement (from page 9)}
+
+\[
+P(X \ge a) \le \min_{t>0} e^{-ta} M_X(t)
+\]
+
+where:
+
+\[
+M_X(t) = \mathbb{E}[e^{tX}]
+\]
+
+\subsection{Requirements}
+
+\begin{itemize}
+\item Full distribution via:
+\begin{itemize}
+\item Moment Generating Function (MGF)
+\end{itemize}
+\end{itemize}
+
+\subsection{Behavior}
+
+\begin{itemize}
+\item Decay:
+\[
+\propto e^{-k}
+\]
+(Exponential decay)
+\end{itemize}
+
+\subsection{Observation from Graph}
+
+\begin{itemize}
+\item Example (page 9):
+\begin{itemize}
+\item Exact: 0.092
+\item Chernoff: 0.391 (tightest among bounds)
+\end{itemize}
+\end{itemize}
+
+\textbf{Conclusion:}
+
+\begin{itemize}
+\item Tightest bound among the three
+\item Closely follows actual tail probability
+\end{itemize}
+
+\section{Comparison of Decay Rates}
+
+From page 10:
+
+\begin{itemize}
+\item Markov: Linear $(1/k)$
+\item Chebyshev: Polynomial $(1/k^2)$
+\item Chernoff: Exponential $(e^{-k})$
+\end{itemize}
+
+\textbf{Key statement:}
+
+\begin{itemize}
+\item Chernoff decays fastest
+\item Markov remains highly pessimistic
+\end{itemize}
+
+\section{Case Study: SLA Breach}
+
+From page 11:
+
+\subsection{Parameters}
+
+\begin{itemize}
+\item Distribution:
+\[
+X \sim \text{Poisson}(\lambda = 500)
+\]
+
+\item SLA threshold:
+\[
+k = 600
+\]
+\end{itemize}
+
+\subsection{Objective}
+
+\begin{itemize}
+\item Compute:
+\[
+P(X > 600)
+\]
+
+\item Use bounds to:
+\begin{itemize}
+\item Size backup capacity
+\end{itemize}
+\end{itemize}
+
+\section{Cost of Loose Bounds}
+
+From page 12:
+
+\begin{itemize}
+\item Exact: $\sim 1.4\%$
+\item Chernoff: $\sim 8.8\%$
+\item Chebyshev: $\sim 20\%$
+\item Markov: $\sim 90.9\%$
+\end{itemize}
+
+\subsection{Interpretation}
+
+\begin{itemize}
+\item Markov:
+\begin{itemize}
+\item Predicts extremely high failure probability
+\item Leads to over-provisioning
+\end{itemize}
+
+\item Chernoff:
+\begin{itemize}
+\item Closest to actual
+\end{itemize}
+\end{itemize}
+
+\section{Financial Interpretation}
+
+From pages 13--14:
+
+\subsection{Waste Multiplier}
+
+\[
+\text{Waste Multiplier} = \frac{\text{Bound Estimate}}{\text{Exact Probability}}
+\]
+
+\subsection{Insight}
+
+\begin{itemize}
+\item Overestimation $\Rightarrow$ extra servers purchased
+\item ``Bad math burns budget''
+\end{itemize}
+
+\section{Effect of Distribution Type}
+
+From page 15:
+
+\begin{itemize}
+\item Chernoff works well for:
+\begin{itemize}
+\item Normal
+\item Poisson
+\item Binomial
+\end{itemize}
+
+\item Limitation:
+\begin{itemize}
+\item For \textbf{Gamma (bursty, heavy-tailed)}:
+\begin{itemize}
+\item Chernoff can overestimate
+\end{itemize}
+\end{itemize}
+\end{itemize}
+
+\textbf{Conclusion:}
+
+\begin{itemize}
+\item Choice of bound depends on distribution
+\end{itemize}
+
+\section{Engineer’s Decision Matrix}
+
+From page 16:
+
+\begin{itemize}
+\item Markov: Mean, Linear, Loose (10--1000x), Only mean known
+\item Chebyshev: Mean + Variance, Polynomial, Moderate (2--10x), Variance known
+\item Chernoff: Full MGF, Exponential, Tight (<2x), Precise SLA modeling
+\end{itemize}
+
+\section{Class Participation: Laplace Distribution}
+
+From page 17:
+
+\subsection{Given}
+
+\[
+X \sim \text{Laplace}(\mu, b)
+\]
+
+\begin{itemize}
+\item Sharp central peak
+\item Heavy tails
+\item Standard deviation:
+\[
+\sigma = b\sqrt{2}
+\]
+\end{itemize}
+
+\subsection{Objective}
+
+\begin{itemize}
+\item Derive Chernoff bound
+\item Threshold:
+\[
+a = \mu + 3\sigma
+\]
+\end{itemize}
+
+\section{Derivation Blueprint (Step-by-Step)}
+
+From page 18:
+
+\subsection{Step 1: Compute MGF}
+
+\[
+M_X(t) = \mathbb{E}[e^{tX}]
+\]
+
+\subsection{Step 2: Apply Chernoff Inequality}
+
+\[
+P(X \ge a) \le e^{-ta} M_X(t)
+\]
+
+\subsection{Step 3: Optimize}
+
+\begin{itemize}
+\item Differentiate w.r.t. $t$
+\item Set derivative = 0
+\item Solve for optimal $t$
+\end{itemize}
+
+\subsection{Step 4: Substitute}
+
+\begin{itemize}
+\item Plug optimal $t$ into inequality
+\item Obtain tightest bound
+\end{itemize}
+
+\section{Final Logical Flow of Lecture}
+
+\begin{enumerate}
+\item Real-world system (Amazon sale) $\rightarrow$ uncertainty
+\item Model traffic using probability (Poisson)
+\item Define failure via tail probability
+\item Introduce bounds when exact probability unavailable
+\item Compare:
+\begin{itemize}
+\item Markov (mean only)
+\item Chebyshev (variance)
+\item Chernoff (MGF)
+\end{itemize}
+\item Evaluate impact on:
+\begin{itemize}
+\item System reliability
+\item Financial cost
+\end{itemize}
+\item Apply framework to new distribution (Laplace)
+\end{enumerate}
+
+\end{document}
