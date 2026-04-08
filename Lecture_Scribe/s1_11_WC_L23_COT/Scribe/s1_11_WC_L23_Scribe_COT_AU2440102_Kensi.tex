@@ -1,0 +1,321 @@
+\documentclass{article}
+
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+
+\title{\textbf{CSE400 – Fundamentals of Probability in Computing}}
+\author{\textbf{Kensi Patel - AU2440102}}
+\date{Lecture 23}
+
+\begin{document}
+
+\maketitle
+
+\textbf{Lecture 23: Predicting the Impossible – Tail Bounds and System Reliability}
+
+Instructor: Dhaval Patel, PhD
+
+\section*{1. Problem Context (Amazon Black Friday Case Study)}
+
+\begin{itemize}
+    \item \textbf{System:} Large-scale distributed servers (Amazon sale traffic).
+    \item \textbf{Model:} Requests arrive randomly over time $\rightarrow$ modeled using \textbf{Poisson distribution}. (Page 3)
+\end{itemize}
+
+\textbf{Let:}
+\begin{itemize}
+    \item $X$ = number of requests in a time interval
+    \item $\lambda$ = average rate (mean)
+\end{itemize}
+
+\textbf{From slide:}
+\begin{itemize}
+    \item Example: $\lambda = 50$ requests/min (Page 5)
+    \item Crash threshold: $k = 60$
+\end{itemize}
+
+\textbf{Objective}
+
+Compute:
+\[P(X \ge k)\]
+
+$\rightarrow$ Probability system overloads.
+
+\section*{2. Key Observation from Lecture}
+
+From \textit{Page 5}:
+\begin{itemize}
+    \item ``The mean is safe. The tail is catastrophic.''
+\end{itemize}
+
+\textbf{Meaning:}
+\begin{itemize}
+    \item Average load does not cause failure.
+    \item Rare high spikes (tail events) cause crashes.
+\end{itemize}
+
+\textbf{Thus:}
+\begin{itemize}
+    \item We must estimate tail probability $P(X \ge k)$.
+\end{itemize}
+
+\section*{3. Need for Bounds}
+
+Exact probability is difficult or expensive to compute.
+
+From \textit{Page 6}:
+\begin{itemize}
+    \item Use upper bounds instead of exact values.
+    \item Better information $\rightarrow$ tighter bounds.
+\end{itemize}
+
+\textbf{Hierarchy:}
+\begin{enumerate}
+    \item Markov $\rightarrow$ uses only mean
+    \item Chebyshev $\rightarrow$ uses mean + variance
+    \item Chernoff $\rightarrow$ uses full distribution (MGF)
+\end{enumerate}
+
+\section*{4. Markov's Inequality}
+
+\textbf{Statement}
+
+For non-negative random variable $X$:
+\[P(X \ge a) \le \frac{E[X]}{a}\]
+
+\textbf{Derivation (as implied in lecture)}
+
+Using indicator:
+\[X \ge a \cdot \mathbf{1}_{X \ge a}\]
+
+Take expectation:
+\[E[X] \ge a \cdot P(X \ge a)\]
+
+Rearrange:
+\[P(X \ge a) \le \frac{E[X]}{a}\]
+
+\textbf{Properties (Page 7)}
+\begin{itemize}
+    \item Requires: Mean only
+    \item Decay: $\frac{1}{k}$ (linear)
+    \item Very loose (overestimates heavily)
+\end{itemize}
+
+\textbf{Example from slide:}
+\begin{itemize}
+    \item Exact $\approx 0.004$
+    \item Markov $\approx 0.714$ (165$\times$ too high)
+\end{itemize}
+\section*{5. Chebyshev's Inequality}
+
+\textbf{Statement}
+
+\[P(|X - \mu| \ge t) \le \frac{\sigma^2}{t^2}\]
+
+For right tail:
+\[P(X \ge a) \le \frac{\sigma^2}{(a - \mu)^2}\]
+
+\textbf{Derivation (based on Markov)}
+
+Apply Markov to:
+\[Y = (X - \mu)^2\]
+
+Then:
+\[P(|X - \mu| \ge t) = P(Y \ge t^2)\]
+
+Using Markov:
+\[P(Y \ge t^2) \le \frac{E[Y]}{t^2}\]
+
+Since:
+\[E[(X - \mu)^2] = \sigma^2\]
+
+Final:
+\[P(|X - \mu| \ge t) \le \frac{\sigma^2}{t^2}\]
+
+\textbf{Properties (Page 8)}
+
+Requires: Mean + Variance
+
+Decay:$\frac{1}{k^2} \quad \text{(polynomial)}
+$
+
+Better than Markov
+
+\textbf{Example:}
+
+Exact $\approx 0.004$
+
+Chebyshev $\approx 0.125$ (29$\times$ too high)
+
+\section*{6. Chernoff Bound}
+
+\textbf{Key Idea (Page 9)}
+
+Use Moment Generating Function (MGF):
+\[M_X(t) = E[e^{tX}]\]
+
+\textbf{General Bound}
+\[P(X \ge a) \le \min_{t > 0} e^{-ta} M_X(t)\]
+
+\section*{Derivation Steps (Page 18 Blueprint)}
+\begin{itemize}
+    \item Step 1: Define exponential transform
+    \[P(X \ge a) = P(e^{tX} \ge e^{ta})\]
+    \item Step 2: Apply Markov
+    \[P(e^{tX} \ge e^{ta}) \le \frac{E[e^{tX}]}{e^{ta}}= e^{-ta} M_X(t)\]
+    \item Step 3: Optimize over $t$
+    \[\min_{t > 0} e^{-ta} M_X(t)\]
+\end{itemize}
+
+\section*{Poisson Case (Page 9)}
+
+\begin{itemize}
+    \item For $X \sim \text{Poisson}(\lambda)$:
+    \[M_X(t) = e^{\lambda (e^t - 1)}\]
+    \item Final bound form:
+    \[P(X \ge a) \le e^{-\lambda (r \ln r - r + 1)}, \quad r = \frac{a}{\lambda}\]
+\end{itemize}
+
+\section*{Properties}
+\begin{itemize}
+    \item Requires: Full distribution (MGF)
+    \item Decay: Exponential $e^{-k}$
+    \item Tightest bound
+    
+    \textbf{Example:}
+    \item Exact $\approx 0.092$
+    \item Chernoff $\approx 0.391$ (closest)
+\end{itemize}
+
+\section*{7. Comparison of Bounds (Page 10)}
+
+\begin{tabular}{lll}
+\toprule
+\textbf{Bound} & \textbf{Decay} & \textbf{Tightness} \\
+\midrule
+Markov & $1/k$ & Very loose \\
+Chebyshev & $1/k^2$ & Moderate \\
+Chernoff & $e^{-k}$ & Tight \\
+\bottomrule
+\end{tabular}
+
+\section*{8. System Design Interpretation}
+
+\textbf{SLA Scenario (Page 11)}
+\begin{itemize}
+    \item $\lambda = 500$
+    \item Threshold $k = 600$
+\end{itemize}
+
+\textbf{Goal:}
+\[P(X \ge 600)\]
+
+\section*{Impact of Bound Choice (Page 12)}
+
+\begin{tabular}{ll}
+\toprule
+\textbf{Method} & \textbf{Estimated Failure} \\
+\midrule
+Exact & $\sim 1.4\%$ \\
+Chernoff & $\sim 8.8\%$ \\
+Chebyshev & $\sim 20\%$ \\
+Markov & $\sim 90.9\%$ \\
+\bottomrule
+\end{tabular}
+
+\section*{Conclusion from Lecture}
+
+\begin{itemize}
+    \item Loose bounds $\rightarrow$ huge overestimation
+    \item Leads to:
+    \begin{itemize}
+        \item Over-provisioning
+        \item Financial waste
+    \end{itemize}
+\end{itemize}
+
+\section*{9. Waste Multiplier (Page 14)}
+
+\[
+\text{Waste} = \frac{\text{Bound Estimate}}{\text{Exact Probability}}
+\]
+
+\textbf{Interpretation:}
+\begin{itemize}
+    \item Larger bound $\Rightarrow$ more unnecessary servers purchased
+\end{itemize}
+
+\section*{10. Distribution Sensitivity (Page 15)}
+
+\begin{itemize}
+    \item Chernoff works well for:
+    \begin{itemize}
+        \item Poisson
+        \item Binomial
+    \end{itemize}
+    \item Not accurate for:
+    \begin{itemize}
+        \item Heavy-tailed (Gamma)
+    \end{itemize}
+    $\rightarrow$ In such cases:
+    \begin{itemize}
+        \item Use simulations or Chebyshev
+    \end{itemize}
+\end{itemize}
+
+\section*{11. Decision Matrix (Page 16)}
+
+\begin{tabular}{lll}
+\toprule
+\textbf{Method} & \textbf{Requires} & \textbf{Use Case} \\
+\midrule
+Markov & Mean & Quick rough bound \\
+Chebyshev & Mean + Variance & Unknown distribution \\
+Chernoff & Full MGF & Precise system sizing \\
+\bottomrule
+\end{tabular}
+
+\section*{12. Class Exercise (Laplace Distribution)}
+
+\textbf{Given:}
+
+\[X \sim \text{Laplace}(\mu, b), \quad \sigma = b\sqrt{2}\]
+
+\textbf{Steps (Page 18)}
+
+\begin{enumerate}
+    \item Compute MGF:
+    \[M_X(t) = E[e^{tX}]\]
+    \item Apply Chernoff:
+    \[P(X \ge a) \le e^{-ta} M_X(t)\]
+    \item Optimize:
+    \[\frac{d}{dt} (\cdot) = 0\]
+    \item Substitute optimal $t$
+\end{enumerate}
+
+\section*{Final Takeaways}
+
+\begin{itemize}
+    \item Tail probability is critical for system reliability.
+    \item Exact computation often replaced by bounds.
+    \item Tightness hierarchy:
+    \[\text{Markov} < \text{Chebyshev} < \text{Chernoff}\]
+    \item Wrong bound $\Rightarrow$ wrong engineering decisions.
+\end{itemize}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\end{document}
