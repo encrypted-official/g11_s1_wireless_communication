@@ -1,0 +1,5 @@
+KENSI PATEL
+AU2440102
+LECTURE 23 PROMPT
+
+Generate a lecture scribe for the given PDF file in chat. This is the lecture file that our professor used while conducting the lecture 23. A lecture scribe is an exam-ready reconstruction of what was taught in the class, and it should allow me to recall definitions and notations, reconstruct proofs and derivations, follow worked examples step by step, and understand logical dependencies. Also, a lecture scribe must not have creative explanations, simplified tutorials, textbook rewrites, a solution manual for unseen problems, and a place to add intuition not discussed in class. The key point is that if it was not in the lecture or textbook context, then it should not appear in the lecture scribe. Also, the purpose of lecture scribing is that it must help me during exams to revise concepts in a shorter period. Hence, for the given lecture pdf, make the lecture scribe that also explains from where the particular formula gets derived.
